@@ -53,4 +53,4 @@ def test_build_index_from_directory_uses_parser(empty_conn: sqlite3.Connection) 
     build_index_from_directory(empty_conn, sample_knowledge)
 
     count = empty_conn.execute("SELECT count(*) FROM documents").fetchone()[0]
-    assert count == 9
+    assert count == 10

@@ -15,6 +15,7 @@ tags:
 
 - [standard-001: Azureリソースネーミング規約](./standards/standard-001.md)
 - [standard-002: コミットメッセージ規約](./standards/standard-002.md)
+- [standard-003: Dockerコンテナ品質チェック標準](./standards/standard-003.md)
 
 ## guidelines
 
