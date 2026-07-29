@@ -500,6 +500,18 @@ GitHub Actionsで以下を実施する。
 
 ---
 
+# 完了基準（Definition of Done）
+
+各Issue・PRは、クローズ/マージ前に以下を満たすこと。
+
+* `uv run ruff check .` で静的解析エラーがないこと
+* `uv run mypy .` で型チェックエラーがないこと（strictモード）
+* `uv run pytest` でユニットテストが全て通過すること
+* テストカバレッジ70%以上であること（`--cov-fail-under=70`で自動チェック）
+  * 70%はPoC期間中の基準値。本番運用移行時に見直すこと
+
+---
+
 # 非機能要件
 
 * FastMCPはステートレスであること
