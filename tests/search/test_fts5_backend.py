@@ -12,6 +12,16 @@ def test_search_matches_query_text(seeded_conn: sqlite3.Connection) -> None:
     assert [result.id for result in results] == ["standard-python-naming"]
 
 
+def test_search_returns_empty_for_query_shorter_than_trigram_minimum(
+    seeded_conn: sqlite3.Connection,
+) -> None:
+    backend = Fts5SearchBackend(seeded_conn)
+
+    assert backend.search(SearchQuery(text="")) == []
+    assert backend.search(SearchQuery(text="標")) == []
+    assert backend.search(SearchQuery(text="標準")) == []
+
+
 def test_search_returns_empty_when_no_match(seeded_conn: sqlite3.Connection) -> None:
     backend = Fts5SearchBackend(seeded_conn)
 

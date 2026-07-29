@@ -5,7 +5,7 @@ import sqlite3
 from datetime import date
 from typing import Protocol
 
-from src.domain.document import OkfDocument
+from src.domain.document import DocumentType, OkfDocument, RuleLevel
 
 
 class DocumentRepository(Protocol):
@@ -14,9 +14,9 @@ class DocumentRepository(Protocol):
     def list_by_metadata(
         self,
         *,
-        type: str | None = None,
+        type: DocumentType | None = None,
         technology: str | None = None,
-        rule_level: str | None = None,
+        rule_level: RuleLevel | None = None,
         status: str | None = None,
         applies_to: str | None = None,
     ) -> list[OkfDocument]: ...
@@ -35,9 +35,9 @@ class SqliteDocumentRepository:
     def list_by_metadata(
         self,
         *,
-        type: str | None = None,
+        type: DocumentType | None = None,
         technology: str | None = None,
-        rule_level: str | None = None,
+        rule_level: RuleLevel | None = None,
         status: str | None = None,
         applies_to: str | None = None,
     ) -> list[OkfDocument]:

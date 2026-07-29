@@ -5,12 +5,15 @@ title/summary/bodyに対するBM25全文検索を行う2段階検索。
 
 日本語コンテンツは分かち書きされていないため、標準のunicode61トークナイザでは
 文単位で1トークンとして扱われ検索できない。そのためtokenize='trigram'(schema.py)を用い、
-3文字以上の部分一致検索を行う。クエリが3文字未満の場合はマッチせず空リストを返す。
+3文字以上の部分一致検索を行う。クエリが3文字未満の場合はtrigramのトークンが生成できないため、
+SQLiteへ問い合わせず空リストを返す。
 """
 
 import sqlite3
 
 from src.search.backend import SearchQuery, SearchResult
+
+_MIN_QUERY_LENGTH = 3
 
 _BASE_SQL = """
 SELECT
@@ -29,6 +32,9 @@ class Fts5SearchBackend:
         self._conn = conn
 
     def search(self, query: SearchQuery) -> list[SearchResult]:
+        if len(query.text) < _MIN_QUERY_LENGTH:
+            return []
+
         clauses = ["documents_fts MATCH ?"]
         params: list[str] = [_to_phrase_match(query.text)]
 
