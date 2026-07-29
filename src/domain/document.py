@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 DocumentType = Literal[
     "standard",
@@ -20,6 +20,8 @@ RuleLevel = Literal["must", "should", "may", "reference"]
 
 
 class OkfDocument(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     type: DocumentType
     id: str
     title: str

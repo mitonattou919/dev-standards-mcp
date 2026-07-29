@@ -135,6 +135,60 @@ tags: [test]
         parse_document(path)
 
 
+def test_parse_document_standard_empty_list_field_is_treated_as_missing(tmp_path: Path) -> None:
+    content = """---
+type: standard
+id: standard-999
+title: テスト標準
+summary: テスト用のダミー標準
+status: active
+owner: test-team
+tags: [test]
+rule_level: must
+technologies: []
+applies_to:
+  - all-projects
+version: "1.0.0"
+effective_date: 2026-07-29
+---
+
+本文
+"""
+    path = _write(tmp_path, "standard-empty-list-field.md", content)
+
+    with pytest.raises(OkfParseError, match="type=standard requires fields: technologies"):
+        parse_document(path)
+
+
+def test_parse_document_frontmatter_value_containing_delimiter_substring(tmp_path: Path) -> None:
+    content = """---
+type: guideline
+id: guideline-999
+title: テストガイドライン
+summary: "before---after"
+status: active
+owner: test-team
+tags:
+  - test
+---
+
+# 本文
+
+区切り線の前
+
+---
+
+区切り線の後
+"""
+    path = _write(tmp_path, "delimiter-substring.md", content)
+
+    document = parse_document(path)
+
+    assert document.summary == "before---after"
+    assert "区切り線の前" in document.body
+    assert "区切り線の後" in document.body
+
+
 def test_parse_directory_sample_knowledge() -> None:
     sample_knowledge = Path(__file__).parent.parent.parent / "sample-knowledge"
 
