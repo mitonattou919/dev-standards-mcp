@@ -52,3 +52,11 @@ uv run mypy .
 uv run pytest
 uv run pip-audit
 ```
+
+`uv run pytest` にはDockerイメージのbuild・run・MCPヘルスチェックを行う統合テスト（`tests/test_docker_integration.py`）が含まれる。Dockerが利用できない環境では自動的にスキップされる。
+
+Dockerfileを変更した場合は、Hadolintでの静的解析も実行すること。
+
+```bash
+docker run --rm -i hadolint/hadolint < Dockerfile
+```
