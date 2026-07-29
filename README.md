@@ -34,6 +34,58 @@ docker run --rm -p 8000:8000 dev-standards-mcp:local
 
 `http://localhost:8000/mcp` にMCPクライアント（Claude Code等）から接続できる。
 
+## MCPクライアントからの動作確認
+
+コンテナ（またはローカルの`uv run python main.py`）を起動した状態で、以下のいずれかの方法で疎通・Tool呼び出しを確認できる。
+
+### 方法A: Claude Code から接続
+
+```bash
+claude mcp add --transport http dev-standards-mcp http://localhost:8000/mcp
+```
+
+追加後、Claude Codeのセッション内で `/mcp` と入力すると接続状態（`dev-standards-mcp` が `connected`）を確認できる。開発標準に関する質問（例: 「Dockerの品質チェックで何をすればいい？」）を投げると、`search_standards` 等のToolが自動的に呼び出される。
+
+不要になったら以下で削除する。
+
+```bash
+claude mcp remove dev-standards-mcp
+```
+
+### 方法B: MCP Inspector（GUIで対話的に確認）
+
+```bash
+npx @modelcontextprotocol/inspector http://localhost:8000/mcp
+```
+
+ブラウザが開き、`search_standards` / `get_standard` / `get_applicable_standards` / `get_review_checklist` の4 Toolを一覧・実行できる。
+
+### 方法C: curlで直接JSON-RPCを叩く（ツール不要）
+
+MCPのStreamable HTTPトランスポートはセッションIDを要求するため、`initialize`のレスポンスヘッダーから`Mcp-Session-Id`を取り出して以降のリクエストに付与する。
+
+```bash
+# 1. initialize してセッションIDを取得
+curl -sD /tmp/mcp_headers.txt http://localhost:8000/mcp -X POST \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"manual-check","version":"1.0"}}}'
+SESSION_ID=$(grep -i "mcp-session-id" /tmp/mcp_headers.txt | awk '{print $2}' | tr -d '\r')
+
+# 2. initialized通知を送る（レスポンスなし・202が返る）
+curl -s -o /dev/null -w "HTTP %{http_code}\n" http://localhost:8000/mcp -X POST \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -H "Mcp-Session-Id: $SESSION_ID" \
+  -d '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+
+# 3. search_standards を呼び出す
+curl -s http://localhost:8000/mcp -X POST \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -H "Mcp-Session-Id: $SESSION_ID" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search_standards","arguments":{"query":"docker"}}}'
+```
+
+`standard-003`（Dockerコンテナ品質チェック標準）がヒットすれば、コンテナ起動→インデックス構築→検索まで一連の動作確認が取れたことになる。
+
 ## 環境変数
 
 | 変数名 | デフォルト | 説明 |
