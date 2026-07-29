@@ -12,58 +12,58 @@ tags:
   - mypy
 ---
 
-# L2: Setting Up a Python Development Environment
+# L2: Python開発環境のセットアップ
 
-## About This Document
+## このドキュメントについて
 
-A practical guide for writing Python alongside AI.
-Written from "why we chose this," not "use this tool."
+AIと一緒にPythonを書くための実践ガイド。
+「このツールを使え」ではなく「なぜこれを選んだか」という観点から書いている。
 
-## 1. Tool Overview
+## 1. ツール概要
 
-Four roles, each assigned to a dedicated tool.
+4つの役割を、それぞれ専用ツールに割り当てる。
 
-| Role | Tool |
+| 役割 | ツール |
 |---|---|
-| Environment & dependency management | `uv` |
-| Linting & formatting | `Ruff` |
-| Type checking | `mypy` |
-| Task runner | `poethepoet` |
+| 環境・依存関係管理 | `uv` |
+| Lint・フォーマット | `Ruff` |
+| 型チェック | `mypy` |
+| タスクランナー | `poethepoet` |
 
-Each tool does one thing well — splitting responsibilities is faster and less brittle than loading everything into a single tool.
+各ツールが一つのことをうまくやる構成にしている。責務を分割したほうが、一つのツールに全部詰め込むより速く、壊れにくい。
 
-## 2. uv — Environment and Dependency Management
+## 2. uv — 環境・依存関係管理
 
-The era of running `pip` + `pyenv` + `pip-tools` separately is over. Consolidate to `uv`.
+`pip` + `pyenv` + `pip-tools` を個別に運用する時代は終わった。`uv`に統合する。
 
-**Why uv**
+**なぜuvなのか**
 
-- Written in Rust — blazing fast (nearly zero wait time)
-- Handles Python version management, virtual environments, and package management all in one
-- `uv.lock` records Python version and OS-level binaries, so "works on my machine" problems rarely happen
+- Rust製で圧倒的に高速（待ち時間がほぼゼロ）
+- Pythonバージョン管理・仮想環境・パッケージ管理を一つでまかなえる
+- `uv.lock`にPythonバージョンとOSレベルのバイナリまで記録されるため、「自分の環境では動く」問題がほぼ起きない
 
-**Basic Commands**
+**基本コマンド**
 
 ```bash
-uv python install 3.13        # Install a Python version
-uv init --python 3.13         # Create a project
-uv sync                       # Sync environment to uv.lock state
-uv add {package}              # Add a dependency
-uv run {command}              # Run a command in the project's virtual environment
+uv python install 3.13        # Pythonバージョンをインストール
+uv init --python 3.13         # プロジェクトを作成
+uv sync                       # 環境をuv.lockの状態に同期
+uv add {package}              # 依存関係を追加
+uv run {command}              # プロジェクトの仮想環境でコマンドを実行
 ```
 
-Commit `uv.lock`. It's the record of the canonical environment.
+`uv.lock`はコミットすること。これが正本の環境の記録になる。
 
-## 3. Ruff — Linting and Formatting
+## 3. Ruff — Lint・フォーマット
 
-Replace `Flake8` and `Black` with a single Ruff. Also written in Rust — finishes in milliseconds.
+`Flake8`と`Black`をRuff一つに置き換える。こちらもRust製でミリ秒オーダーで完了する。
 
-**Two roles**
+**2つの役割**
 
-- **Lint (`ruff check`)**: Catches logical mistakes — unused imports, `==` comparisons with `None`, unused variables, etc.
-- **Format (`ruff format`)**: Normalizes appearance — quote style, indentation, spacing, etc.
+- **Lint（`ruff check`）**: 未使用importや`None`との`==`比較、未使用変数など、論理的なミスを検出する
+- **Format（`ruff format`）**: クォートスタイル、インデント、スペースなど見た目を統一する
 
-**`pyproject.toml` configuration**
+**`pyproject.toml`の設定例**
 
 ```toml
 [tool.ruff]
@@ -75,50 +75,50 @@ quote-style = "double"
 indent-style = "space"
 ```
 
-The `--fix` flag auto-fixes what it can, keeping PR diffs clean.
+`--fix`フラグで自動修正できるものは自動修正し、PRの差分をきれいに保つ。
 
-## 4. mypy — Type Checking
+## 4. mypy — 型チェック
 
-Write type hints and let `mypy` run static analysis. Verify "is this correct as a type?" before running, not just "does it run?"
+型ヒントを書き、`mypy`で静的解析する。「動くかどうか」だけでなく「型として正しいか」を実行前に確認する。
 
-**Why bother**
+**なぜ必要か**
 
-Python sometimes doesn't raise errors at runtime even with wrong types. For example:
+Pythonは型が間違っていても実行時にエラーにならないことがある。例えば以下のようなコード。
 
 ```python
 def repeat_message(message: str, times: int) -> str:
     return message * times
 
-repeat_message(3, 4)  # Python runs it; mypy stops it
+repeat_message(3, 4)  # Pythonは実行してしまうが、mypyは止める
 ```
 
-AI-generated code can be loose with types. Running `mypy` reduces "works but broken" code.
+AIが生成したコードは型がゆるくなりがちだ。`mypy`を実行することで「動くが壊れている」コードを減らせる。
 
-**Run**
+**実行**
 
 ```bash
-uv run mypy .  # Check the whole directory (single-file checks miss cross-module issues)
+uv run mypy .  # ディレクトリ全体をチェック（単一ファイルのチェックではモジュール横断の問題を見逃す）
 ```
 
-## 5. poethepoet — Task Runner
+## 5. poethepoet — タスクランナー
 
-Use `poe` to bundle lint, format, and type-check commands so you don't need to memorize them.
+lint・format・型チェックのコマンドを`poe`にまとめておけば、いちいち覚える必要がなくなる。
 
-**`pyproject.toml` configuration**
+**`pyproject.toml`の設定例**
 
 ```toml
 [tool.poe.tasks]
 format     = "uv run ruff format ."
 lint       = "uv run ruff check --fix ."
 type-check = "uv run mypy ."
-check      = ["format", "lint", "type-check"]  # Run all together
+check      = ["format", "lint", "type-check"]  # まとめて実行
 ```
 
-`uv run poe check` runs "format → lint → type check" in sequence. Stops at the first type error.
+`uv run poe check`で「format → lint → 型チェック」を順番に実行する。最初の型エラーで止まる。
 
-## 6. pre-commit — Automatic Check Before Every Commit
+## 6. pre-commit — コミット前の自動チェック
 
-Wire `poe check` into a pre-commit hook and quality checks run automatically on every `git commit`.
+`poe check`をpre-commitフックに組み込めば、`git commit`のたびに品質チェックが自動で走る。
 
 **`.pre-commit-config.yaml`**
 
@@ -133,19 +133,19 @@ repos:
         types: [python]
 ```
 
-Key point: use `language: system`. The hook uses the project's `uv` environment, so no version drift between the hook and the dev environment.
+ポイントは`language: system`を使うこと。フックがプロジェクトの`uv`環境を使うため、フックと開発環境の間でバージョンのずれが起きない。
 
-If there's a problem, the commit is blocked. Fixing things on the spot beats batch-fixing later.
+問題があればコミットはブロックされる。あとでまとめて直すより、その場で直すほうがいい。
 
-## Quick Reference
+## クイックリファレンス
 
-| What to do | Command | When |
+| やること | コマンド | タイミング |
 |---|---|---|
-| Sync environment | `uv sync` | When dependencies change |
-| Lint + auto-fix | `uv run ruff check --fix .` | After code changes |
-| Format | `uv run ruff format .` | After code changes |
-| Type check | `uv run mypy .` | After code changes |
-| Run all checks | `uv run poe check` | Before committing |
-| (Auto) pre-commit check | `git commit` | pre-commit runs automatically |
+| 環境同期 | `uv sync` | 依存関係が変わったとき |
+| Lint＋自動修正 | `uv run ruff check --fix .` | コード変更後 |
+| フォーマット | `uv run ruff format .` | コード変更後 |
+| 型チェック | `uv run mypy .` | コード変更後 |
+| 全チェック実行 | `uv run poe check` | コミット前 |
+| （自動）pre-commitチェック | `git commit` | pre-commitが自動実行 |
 
 出典: [mitonattou919/engineering-with-ai](https://github.com/mitonattou919/engineering-with-ai/blob/main/L2-practices/guide-python-dev.md)

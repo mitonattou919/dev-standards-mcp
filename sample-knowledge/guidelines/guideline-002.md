@@ -11,29 +11,29 @@ tags:
   - testing
 ---
 
-# L2: Testing with pytest
+# L2: pytestによるテスト
 
-## About This Document
+## このドキュメントについて
 
-A practical guide for writing tests with [pytest](https://docs.pytest.org/).
-Read this not as "you must do it this way," but as "here's what's worth knowing before you start."
+[pytest](https://docs.pytest.org/)でテストを書くための実践ガイド。
+「こうしなければならない」ではなく「始める前に知っておく価値があること」として読んでほしい。
 
-## 1. Just Write Tests First
+## 1. まずテストを書く
 
-pytest is flexible enough that you can spend a lot of time setting up the "right" structure before writing a single test. That's usually a mistake.
+pytestは柔軟すぎるがゆえに、テストを1つも書かないまま「正しい」構成を作り込むのに時間を使ってしまいがちだ。それはたいてい失敗する。
 
-Start with a plain function in a `test_*.py` file. No fixtures, no plugins, no config. Get something running. The structure that actually helps you will emerge from what's annoying.
+`test_*.py`にただの関数を書くところから始める。フィクスチャもプラグインも設定もいらない。まず動かす。本当に役立つ構成は、面倒に感じた部分から自然に出てくる。
 
 ```python
 def test_add():
     assert add(1, 2) == 3
 ```
 
-That's a valid test. Start there.
+これで立派なテストだ。ここから始める。
 
-## 2. Fixtures Are for Setup You'd Otherwise Repeat
+## 2. フィクスチャは繰り返しをなくすためのもの
 
-Fixtures aren't a design goal — they're a solution to repetition. If you're writing the same setup code in three tests, that's the moment to reach for a fixture.
+フィクスチャは設計目標ではなく、繰り返しへの対処法だ。同じセットアップコードを3つのテストで書いていたら、それがフィクスチャを使うタイミングだ。
 
 ```python
 import pytest
@@ -46,16 +46,16 @@ def test_user_display_name(sample_user):
     assert display_name(sample_user) == "Alice"
 ```
 
-**Fixture scope matters**
+**フィクスチャのスコープに注意**
 
-- `scope="function"` (default) — recreated for every test. Safe, predictable.
-- `scope="session"` — created once per test run. Useful for expensive setup (DB connections, loaded models), but watch for state leaking between tests.
+- `scope="function"`（デフォルト）— テストごとに再生成される。安全で予測しやすい。
+- `scope="session"`— テスト実行全体で1回だけ生成される。コストの高いセットアップ（DB接続やモデルのロードなど）に有効だが、テスト間で状態が漏れないか注意が必要。
 
-Start with `function` scope. Move to wider scope only when slowness becomes a real problem.
+まずは`function`スコープで始める。遅さが実際に問題になってから、より広いスコープに広げる。
 
-## 3. Parametrize for Multiple Cases
+## 3. 複数ケースはパラメータ化する
 
-When you want to run the same test logic with different inputs, `@pytest.mark.parametrize` keeps things clean.
+同じテストロジックを異なる入力で実行したいときは、`@pytest.mark.parametrize`を使うとすっきりする。
 
 ```python
 @pytest.mark.parametrize("input,expected", [
@@ -67,15 +67,15 @@ def test_uppercase(input, expected):
     assert to_uppercase(input) == expected
 ```
 
-This is usually better than writing three nearly-identical test functions. Each case gets its own result in the output, so failures are easy to isolate.
+ほぼ同じテスト関数を3つ書くより、たいていこちらのほうがいい。各ケースが出力に個別に表示されるため、失敗の切り分けもしやすい。
 
-## 4. Mocks: Use Them at the Boundary, Not Inside
+## 4. モックは境界で使う。内部では使わない
 
-Mocking is useful for isolating code from external systems — HTTP calls, databases, file I/O. It becomes a problem when you mock so much that your test is no longer testing real behavior.
+モックは、HTTP呼び出しやデータベース、ファイルI/Oなど、外部システムからコードを切り離すのに有効だ。ただし、モックしすぎるとテストが実際の挙動を検証しなくなり、問題になる。
 
-**A useful rule of thumb**
+**使える経験則**
 
-Mock things your code calls, not things your code *is*.
+コードが「呼び出しているもの」をモックする。コードが「そのものであるもの」をモックしない。
 
 ```python
 from unittest.mock import patch
@@ -87,11 +87,11 @@ def test_fetch_user_calls_api(mock_get):
         assert result["id"] == 1
 ```
 
-If you find yourself mocking three layers deep, it's often a sign the code under test is doing too much.
+3階層も深くモックしている自分に気づいたら、たいていはテスト対象のコードが多くのことをやりすぎているサインだ。
 
-## 5. Use Markers to Organize Tests
+## 5. マーカーでテストを整理する
 
-Markers let you categorize tests and run subsets selectively.
+マーカーを使うと、テストを分類して部分的に実行できる。
 
 ```python
 @pytest.mark.slow
@@ -100,11 +100,11 @@ def test_heavy_computation():
 ```
 
 ```bash
-# Run everything except slow tests
+# slowテスト以外をすべて実行
 pytest -m "not slow"
 ```
 
-Register custom markers in `pyproject.toml` to avoid warnings:
+警告を避けるため、カスタムマーカーは`pyproject.toml`に登録しておく。
 
 ```toml
 [tool.pytest.ini_options]
@@ -114,11 +114,11 @@ markers = [
 ]
 ```
 
-A few well-chosen markers go a long way. Don't over-categorize.
+厳選した少数のマーカーで十分効果がある。分類しすぎないこと。
 
-## 6. Configuration in pyproject.toml
+## 6. pyproject.tomlに設定を集約する
 
-Keep pytest config in `pyproject.toml` alongside your other tooling. Avoids having yet another config file.
+pytestの設定は他のツールと同様に`pyproject.toml`にまとめておく。設定ファイルをこれ以上増やさないため。
 
 ```toml
 [tool.pytest.ini_options]
@@ -126,16 +126,16 @@ testpaths = ["tests"]
 addopts = "-v --tb=short"
 ```
 
-`--tb=short` gives you enough traceback to understand a failure without the wall of text. Adjust to taste.
+`--tb=short`は、大量のテキストに埋もれずに失敗を理解できる程度のトレースバックを出してくれる。好みに応じて調整する。
 
-## What's Next
+## 次に考えること
 
-Once your basic test suite is running, the questions that tend to come up:
+基本的なテストスイートが動くようになったら、次に出てくる問いはこのあたりだ。
 
-- How do you test code that depends on environment variables or config files?
-- When does `pytest-mock` make more sense than `unittest.mock`?
-- How do you structure tests for async code (`pytest-asyncio`)?
+- 環境変数や設定ファイルに依存するコードはどうテストするか
+- `unittest.mock`より`pytest-mock`が向いているのはどんなときか
+- 非同期コード（`pytest-asyncio`）のテストはどう構成するか
 
-Find the friction in your specific codebase, then dig in.
+自分のコードベースで実際に感じた摩擦を起点に、深掘りしていく。
 
 出典: [mitonattou919/engineering-with-ai](https://github.com/mitonattou919/engineering-with-ai/blob/main/L2-practices/guide-pytest.md)
