@@ -194,7 +194,7 @@ def test_parse_directory_sample_knowledge() -> None:
 
     documents = parse_directory(sample_knowledge)
 
-    assert len(documents) == 9
+    assert len(documents) == 10
     ids = {document.id for document in documents}
     assert "standard-001" in ids
     assert "index" in ids
