@@ -1,8 +1,10 @@
 from src.api.server import create_server
+from src.api.settings import load_settings
 
 
 def main() -> None:  # pragma: no cover
-    create_server().run(transport="http", host="127.0.0.1", port=8000, path="/mcp")
+    settings = load_settings()
+    create_server().run(transport="http", host=settings.host, port=settings.port, path="/mcp")
 
 
 if __name__ == "__main__":

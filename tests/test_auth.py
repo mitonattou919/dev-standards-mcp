@@ -18,3 +18,14 @@ def test_build_auth_provider_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
     provider = build_auth_provider(auth_enabled=True)
 
     assert isinstance(provider, AzureProvider)
+
+
+def test_build_auth_provider_enabled_missing_env_vars(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("AZURE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("AZURE_CLIENT_SECRET", raising=False)
+    monkeypatch.delenv("AZURE_TENANT_ID", raising=False)
+
+    with pytest.raises(RuntimeError, match="AZURE_CLIENT_ID"):
+        build_auth_provider(auth_enabled=True)
