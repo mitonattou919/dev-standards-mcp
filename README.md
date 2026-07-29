@@ -50,4 +50,5 @@ docker run --rm -p 8000:8000 dev-standards-mcp:local
 uv run ruff check .
 uv run mypy .
 uv run pytest
+uv run pip-audit
 ```
