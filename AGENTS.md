@@ -509,6 +509,7 @@ GitHub Actionsで以下を実施する。
 * `uv run pytest` でユニットテストが全て通過すること
 * テストカバレッジ70%以上であること（`--cov-fail-under=70`で自動チェック）
   * 70%はPoC期間中の基準値。本番運用移行時に見直すこと
+* `uv run pip-audit` でPython依存関係に既知の脆弱性（CVE）がないこと
 
 ---
 
