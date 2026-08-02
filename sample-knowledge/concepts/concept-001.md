@@ -39,9 +39,21 @@ tags:
 
 ### 1. 標準を取得する
 
-作業に着手する前に、対象タスクへ適用される標準・ガイドライン・チェックリストを取得する。取得元はMCP Tool（`search_standards` / `get_standard` / `get_applicable_standards` / `get_review_checklist`）とする。記憶や推測で標準を代替しない。
+作業に着手する前に、対象タスクへ適用される標準・ガイドライン・チェックリストを取得する。取得元は原則としてMCP Tool（`search_standards` / `get_standard` / `get_applicable_standards` / `get_review_checklist`）とする。記憶や推測で標準を代替しない。
 
-取得した文書のIDを記録する。
+取得した文書のIDと、後述の参照方式を記録する。
+
+#### 参照方式
+
+`mcp` を原則とし、例外は以下2つに限る。この3値以外を使わない。
+
+| 値 | 使う条件 |
+|----|----------|
+| `mcp` | 通常。稼働中のMCPサーバから取得した場合 |
+| `direct-skill` | MCPあり／なしのトークン・コンテキスト使用量を比較するベースライン測定を目的とする場合に限る |
+| `bootstrap` | 本リポジトリ（dev-standards-mcp）自身を開発する場合。ナレッジの正本とMCPサーバ実装が同一リポジトリにあり、変更中のコード・文書を自分自身で参照することになるため |
+
+`direct-skill` / `bootstrap` でも、どの文書のどの箇所を参照したかを記録する義務は変わらない。記憶や推測で代替してよいという意味ではない。
 
 ### 2. 作業へ反映する
 
@@ -86,7 +98,7 @@ tags:
 参照:
   dev_standards_commit: <dev-standards-mcpのコミットSHA>
   working_tree: clean | dirty
-  参照方式: MCP経由（ローカルDockerコンテナ） | 直参照スキル
+  参照方式: mcp | direct-skill | bootstrap
   参照文書: [standard-002, checklist-001]
 適用:
   - 文書ID: standard-002
@@ -100,6 +112,8 @@ tags:
 ```
 
 `version` は `type: standard` 以外の文書には存在しないため項目に含めない。参照時点の版はコミットSHAで特定する。SHAだけでは未コミット変更やコンテナの再ビルド状況を再現できないため、working treeの状態と参照方式をセットで記録する。
+
+`参照方式` は「1. 標準を取得する」で定義した3値のいずれかをそのまま記載する。自由記述にすると準拠判定が一意にならないため、値を追加したい場合はまず本文書の表を改訂する。
 
 ## 初期の観測項目
 
