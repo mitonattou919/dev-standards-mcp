@@ -39,7 +39,18 @@ def parse_document(path: Path) -> OkfDocument:
 
 def parse_directory(directory: Path) -> list[OkfDocument]:
     """directory配下の*.mdをパースする。1件でもパースに失敗すると例外を送出して停止する(fail-fast)。"""
-    return [parse_document(path) for path in sorted(directory.rglob("*.md"))]
+    documents: list[OkfDocument] = []
+    seen: dict[str, Path] = {}
+
+    for path in sorted(directory.rglob("*.md")):
+        document = parse_document(path)
+        duplicated = seen.get(document.id)
+        if duplicated is not None:
+            raise OkfParseError(f"{path}: duplicate id '{document.id}' (already used by {duplicated})")
+        seen[document.id] = path
+        documents.append(document)
+
+    return documents
 
 
 def _split_frontmatter(text: str, path: Path) -> tuple[dict[str, object], str]:

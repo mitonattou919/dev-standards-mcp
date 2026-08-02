@@ -30,6 +30,10 @@ tags:
 
 - [template-001: PR説明文テンプレート](./templates/template-001.md)
 
+## concepts
+
+- [concept-001: エージェント駆動開発の実践知循環](./concepts/concept-001.md)
+
 ## examples
 
 - [example-001: search_standards呼び出し例](./examples/example-001.md)

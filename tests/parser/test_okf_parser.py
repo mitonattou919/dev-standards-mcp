@@ -194,7 +194,20 @@ def test_parse_directory_sample_knowledge() -> None:
 
     documents = parse_directory(sample_knowledge)
 
-    assert len(documents) == 10
     ids = {document.id for document in documents}
-    assert "standard-001" in ids
-    assert "index" in ids
+    assert {"index", "standard-001", "concept-001"} <= ids
+
+
+def test_parse_directory_duplicate_id(tmp_path: Path) -> None:
+    _write(tmp_path, "a.md", _VALID_GUIDELINE)
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    _write(nested, "b.md", _VALID_GUIDELINE)
+
+    with pytest.raises(OkfParseError) as exc_info:
+        parse_directory(tmp_path)
+
+    message = str(exc_info.value)
+    assert "duplicate id 'guideline-999'" in message
+    assert str(nested / "b.md") in message
+    assert str(tmp_path / "a.md") in message

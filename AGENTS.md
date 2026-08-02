@@ -90,6 +90,7 @@ dev-standards-mcp/
 │   ├── guidelines/
 │   ├── checklists/
 │   ├── templates/
+│   ├── concepts/
 │   ├── examples/
 │   └── glossary/
 │
