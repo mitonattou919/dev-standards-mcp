@@ -64,3 +64,30 @@ Discussion #33 で提案した実践知循環型の開発フレームワーク�
 ### 未決事項
 
 - 観測結果を踏まえてconcept-001をどこまで分割・昇格（`status: active` / `standard` 化）するかは、循環1周目（[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30)）の結果を見てから判断する。
+
+## Phase 1.5-1: OKFドキュメント共同執筆スキルの作成（2026-08-02）
+
+関連Issue: [#27](https://github.com/mitonattou919/dev-standards-mcp/issues/27)
+
+### 背景
+
+執筆スキルを机上設計せず、[#34](https://github.com/mitonattou919/dev-standards-mcp/issues/34) で concept-001 を実際に1本執筆した際の判断を入力として仕様化する（Discussion [#33](https://github.com/mitonattou919/dev-standards-mcp/discussions/33) の合意）。
+
+### 決定事項
+
+1. **スキルの配置**: プロジェクトスコープ（`.claude/skills/coauthoring-standards/SKILL.md`）とする。ユーザーレベル（`~/.claude/skills/`）やシンボリックリンク方式は採らない。スキル自体をGit管理・レビュー対象に置くことを優先した。
+2. **上記1の帰結**: 本スキルは dev-standards-mcp リポジトリ内でのみ起動する。[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30) のOTel計測基盤リポジトリで作業中には呼び出せないため、**知見を持ち帰って本リポジトリで書く運用**となる。そのためスキルは知見の出所（リポジトリ・コミットSHA・PR番号）を入力として受け取り、記録する。
+3. **スキルの到達点**: 文書生成・`index.md` 更新・検証・PR作成までを1つの手順に含める。Issue起票だけに留める分岐は設けない。実際にどちらが使われるかのデータが無い段階で分岐を作り込まない。
+4. **index.md の索引更新**: 専用ツールを実装せず、スキル手順の一部としてエージェントが更新する。索引は10件規模であり、自動生成の仕組みを持つ利得より、生成コードを維持する負債の方が大きいため。将来件数が増えて破綻したら再検討する。
+5. **status の初期値**: 新規作成は原則 `draft`。実践による検証を経る前に `active` にしない（#34 の判断を規則化）。
+6. **type の昇格方針**: 実践1回で得た知見はまず `guideline` または `concept` として書き、複数回の実践を経てから `standard` へ昇格させる。いきなり `rule_level: must` の standard を作らない。
+7. **スキル名**（PR [#36](https://github.com/mitonattou919/dev-standards-mcp/pull/36) のレビュー指摘を受けて変更）: `okf-authoring` → `coauthoring-standards`。OKFはナレッジ文書群のフォーマットのベースにすぎず、スキルの主題ではないため。「standards」は `search_standards` 等と同様、`type: standard` に限らず本ナレッジベース全体を指す語として用いる。
+8. **出所の保存先**（同レビュー指摘）: 文書本文の `## 由来` 節（出所 / 得られた作業 / 一般化の範囲）へ記録する。PR本文のevidenceはPRにしか残らず、文書単体を読んだときに由来を追えないため、文書自体に持たせる。既存文書の更新時は追記し、過去の出所を消さない。
+9. **スキルの起動制御**（同レビュー指摘）: `disable-model-invocation: true` を設定し、ユーザーの明示起動限定とする。コミット・push・PR作成まで外部状態を変更するため。あわせて `allowed-tools` の `Bash` を、手順内で実際に使うコマンドパターンのみへ限定した（`allowed-tools` はツールの制限ではなく無確認での事前承認であり、`Bash` 単独指定は任意のシェルコマンドを承認してしまうため）。
+10. **外部スキルへの依存を持たない**（同レビュー指摘）: PR作成手順は `github-flow` スキルへ委譲せず、git / gh コマンドを直接記載して自己完結させる。`github-flow` はユーザーレベルの未管理スキルであり、本リポジトリをcloneしただけの環境には存在しないため。
+11. **ブランチ作成はスキルの最初に行う**（同レビュー2巡目の指摘）: 手順0として、編集前に現在ブランチとworktreeを確認し、`main` を基点に作業ブランチを作る。編集後にブランチを切ると、起動時点のブランチが `main` でなかった場合にそのブランチの未マージコミットを含んだPRになるため。未コミット変更や非mainブランチを検出したときは、勝手に stash / commit / 破棄せずユーザーへ確認する。あわせてコミット時は `git add -A` を使わず対象パスを明示し、`git diff --cached` で差分を確認してからコミットする。
+12. **`allowed-tools` の `uv run` を静的コマンドのみへ限定**（同上）: `Bash(uv run *)` は `uv run python -c` 経由で任意コードを無確認実行できるため、実質的に広い事前承認になっていた。`ruff check` / `mypy` / `pytest` / `pip-audit` の4つのみを個別許可し、検索・取得確認の動的なPython実行は都度承認とする。`git checkout` も `main` へのチェックアウトとブランチ作成のみに限定した（`git checkout -- .` による変更破棄を事前承認しないため）。
+
+### 未決事項
+
+- 本スキルの完了条件（#27）は「#30 の実践から得られた改善知見を最低1件書き戻せること」であり、[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30) 未着手のため実地検証は未了。スキル本体の作成のみ完了。
