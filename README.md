@@ -112,3 +112,13 @@ Dockerfileを変更した場合は、Hadolintでの静的解析も実行する�
 ```bash
 docker run --rm -i hadolint/hadolint < Dockerfile
 ```
+
+## ナレッジの執筆
+
+`sample-knowledge/` へOKF文書を追加・更新するときは、Claude Codeのプロジェクトスキル `okf-authoring`（`.claude/skills/okf-authoring/SKILL.md`）を使う。既存文書の検索による重複回避、type別の配置先とID採番、必須項目の充足、`index.md` の索引更新、検証、PR作成までを手順化してある。
+
+```
+/okf-authoring
+```
+
+このスキルはプロジェクトスコープのため、本リポジトリ内で作業しているときのみ起動する。他リポジトリで得た実践知を書き戻す場合は、出所（リポジトリ・コミットSHA等）を入力として渡すこと。

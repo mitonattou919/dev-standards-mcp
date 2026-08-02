@@ -64,3 +64,24 @@ Discussion #33 で提案した実践知循環型の開発フレームワーク�
 ### 未決事項
 
 - 観測結果を踏まえてconcept-001をどこまで分割・昇格（`status: active` / `standard` 化）するかは、循環1周目（[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30)）の結果を見てから判断する。
+
+## Phase 1.5-1: OKFドキュメント共同執筆スキルの作成（2026-08-02）
+
+関連Issue: [#27](https://github.com/mitonattou919/dev-standards-mcp/issues/27)
+
+### 背景
+
+執筆スキルを机上設計せず、[#34](https://github.com/mitonattou919/dev-standards-mcp/issues/34) で concept-001 を実際に1本執筆した際の判断を入力として仕様化する（Discussion [#33](https://github.com/mitonattou919/dev-standards-mcp/discussions/33) の合意）。
+
+### 決定事項
+
+1. **スキルの配置**: プロジェクトスコープ（`.claude/skills/okf-authoring/SKILL.md`）とする。ユーザーレベル（`~/.claude/skills/`）やシンボリックリンク方式は採らない。スキル自体をGit管理・レビュー対象に置くことを優先した。
+2. **上記1の帰結**: 本スキルは dev-standards-mcp リポジトリ内でのみ起動する。[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30) のOTel計測基盤リポジトリで作業中には呼び出せないため、**知見を持ち帰って本リポジトリで書く運用**となる。そのためスキルは知見の出所（リポジトリ・コミットSHA・PR番号）を入力として受け取り、記録する。
+3. **スキルの到達点**: 文書生成・`index.md` 更新・検証・PR作成までを1つの手順に含める。Issue起票だけに留める分岐は設けない。実際にどちらが使われるかのデータが無い段階で分岐を作り込まない。
+4. **index.md の索引更新**: 専用ツールを実装せず、スキル手順の一部としてエージェントが更新する。索引は10件規模であり、自動生成の仕組みを持つ利得より、生成コードを維持する負債の方が大きいため。将来件数が増えて破綻したら再検討する。
+5. **status の初期値**: 新規作成は原則 `draft`。実践による検証を経る前に `active` にしない（#34 の判断を規則化）。
+6. **type の昇格方針**: 実践1回で得た知見はまず `guideline` または `concept` として書き、複数回の実践を経てから `standard` へ昇格させる。いきなり `rule_level: must` の standard を作らない。
+
+### 未決事項
+
+- 本スキルの完了条件（#27）は「#30 の実践から得られた改善知見を最低1件書き戻せること」であり、[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30) 未着手のため実地検証は未了。スキル本体の作成のみ完了。
