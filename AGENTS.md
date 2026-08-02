@@ -7,7 +7,7 @@
 設計方針は以下の通りとする。
 
 * GitHubを知識の正本（Single Source of Truth）とする
-* AIエージェントはMCP経由でのみ知識を取得する
+* AIエージェントは原則としてMCP経由でのみ知識を取得する（例外は「非機能要件」に定義する2つに限る）
 * 人間とAIが同一の知識を参照できる構成とする
 * 検索基盤は将来的に置き換え可能な構成とする
 * PoCと本番でソースコードを分岐させない
@@ -90,6 +90,7 @@ dev-standards-mcp/
 │   ├── guidelines/
 │   ├── checklists/
 │   ├── templates/
+│   ├── concepts/
 │   ├── examples/
 │   └── glossary/
 │
@@ -521,7 +522,9 @@ GitHub Actionsで以下を実施する。
 * コンテナはイミュータブルであること
 * SQLiteは再生成可能であること
 * GitHubのMarkdownを唯一の正本とすること
-* エージェントはGitHubを直接参照せず、必ずMCP Tool経由で知識を取得すること
+* エージェントはGitHubを直接参照せず、原則としてMCP Tool経由で知識を取得すること。例外は次の2つに限る。いずれも参照方式をevidenceへ記録すること
+  * `direct-skill`: MCPあり／なしのトークン・コンテキスト使用量を比較するベースライン測定（[#28](https://github.com/mitonattou919/dev-standards-mcp/issues/28)）。評価実験を目的とする場合に限る
+  * `bootstrap`: 本リポジトリ（dev-standards-mcp）自身の開発。ナレッジの正本とMCPサーバ実装が同一リポジトリにあり、変更中のコード・文書を自分自身で参照することになるため
 * MCP Toolのインターフェースは検索基盤変更後も維持すること
 * PoCと本番で同一コードベースを維持すること
 

@@ -41,4 +41,26 @@ Phase 1完了後、次のアクションとしてAzure Container Apps移行（Ph
 ### 未決事項
 
 - OTel計測基盤で実際にどの粒度のメトリクスを比較するか（トークン数のみか、レイテンシ・ツール呼び出し回数等も含めるか）は着手時に詰める。
-- OKF type一覧のうち未使用の型（decision, howto, exception, concept）を今回の拡充で使うかは、実際に書く実践知の性質を見てから判断する。
+- OKF type一覧のうち `decision` / `howto` / `exception` を使うかは、実際に書く実践知の性質を見てから判断する。`concept` は glossary-001 と concept-001 で、`reference` は index.md で使用済み。
+
+## Phase 1.5-5: 軽量なエージェント駆動開発フローconceptの導入（2026-08-02）
+
+関連Issue: [#34](https://github.com/mitonattou919/dev-standards-mcp/issues/34) / 関連Discussion: [#33](https://github.com/mitonattou919/dev-standards-mcp/discussions/33)
+
+### 背景
+
+Discussion #33 で提案した実践知循環型の開発フレームワーク（全19章）を一括で確定版として導入すると、実践検証を経ていない設計まで規範化される。まず薄い `concept` 1本で循環を開始し、観測結果から文書構成とProfileを固める方針とした。
+
+### 決定事項
+
+1. **配置先**: `sample-knowledge/concepts/` を新設する。既存ディレクトリへの相乗りはしない。
+2. **ID採番**: 新規conceptは `concept-001` とする。IDのprefixは `type` と一致させる（Phase 0 決定事項5の補足）。
+3. **glossary-001 の扱い**: `type: concept` / `id: glossary-001` はPhase 1期の例外として、ID・配置ともに現状維持する。IDの変更は検索インデックスと既存の相互参照を壊す一方、実害がないため。
+4. **concept-001 の status**: `draft` とする。仮説検証用の定義であり、確定した標準ではない。
+5. **evidenceの最小フォーマット**: PR本文へYAMLブロックで記載する。参照（コミットSHA / working tree状態 / 参照方式 / 参照文書ID）、適用、適用不能・逸脱の3節。現段階では**記載の有無のみを決定論的に確認**し、内容の妥当性評価はスコープ外とする。定義は concept-001 に置く。
+6. **公開前提**: 現段階の知識データ・観測ログはすべて公開扱いとする。非公開情報の取り扱いは循環の型が固まった後に定義する。
+7. **参照方式の許容値とMCP経由取得の例外**（PR [#35](https://github.com/mitonattou919/dev-standards-mcp/pull/35) のレビュー指摘を受けて追加）: evidenceの `参照方式` は `mcp` / `direct-skill` / `bootstrap` の3値のみとし、自由記述を認めない。あわせてCLAUDE.md（AGENTS.md）の「必ずMCP Tool経由で知識を取得すること」を「原則としてMCP Tool経由」へ改め、例外を上記2つ（`direct-skill` = 比較ベースライン測定、`bootstrap` = 本リポジトリ自身の開発）に限定して明文化した。`direct-skill` は Phase 1.5 決定事項2で既に実施が決まっているため削除できず、例外を書かないと方針と実態が矛盾したままになるため。
+
+### 未決事項
+
+- 観測結果を踏まえてconcept-001をどこまで分割・昇格（`status: active` / `standard` 化）するかは、循環1周目（[#30](https://github.com/mitonattou919/dev-standards-mcp/issues/30)）の結果を見てから判断する。

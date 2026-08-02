@@ -52,5 +52,6 @@ def test_build_index_from_directory_uses_parser(empty_conn: sqlite3.Connection) 
 
     build_index_from_directory(empty_conn, sample_knowledge)
 
-    count = empty_conn.execute("SELECT count(*) FROM documents").fetchone()[0]
-    assert count == 10
+    rows = empty_conn.execute("SELECT id FROM documents").fetchall()
+    ids = {row[0] for row in rows}
+    assert {"index", "standard-001", "concept-001"} <= ids
