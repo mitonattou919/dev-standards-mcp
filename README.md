@@ -115,10 +115,12 @@ docker run --rm -i hadolint/hadolint < Dockerfile
 
 ## ナレッジの執筆
 
-`sample-knowledge/` へOKF文書を追加・更新するときは、Claude Codeのプロジェクトスキル `okf-authoring`（`.claude/skills/okf-authoring/SKILL.md`）を使う。既存文書の検索による重複回避、type別の配置先とID採番、必須項目の充足、`index.md` の索引更新、検証、PR作成までを手順化してある。
+`sample-knowledge/` へ文書を追加・更新するときは、Claude Codeのプロジェクトスキル `coauthoring-standards`（`.claude/skills/coauthoring-standards/SKILL.md`）を使う。既存文書の検索による重複回避、type別の配置先とID採番、OKF必須項目の充足、`index.md` の索引更新、検証、PR作成までを手順化してある。
 
 ```
-/okf-authoring
+/coauthoring-standards
 ```
 
-このスキルはプロジェクトスコープのため、本リポジトリ内で作業しているときのみ起動する。他リポジトリで得た実践知を書き戻す場合は、出所（リポジトリ・コミットSHA等）を入力として渡すこと。
+`disable-model-invocation: true` を設定しているため、**ユーザーが明示的に起動したときのみ動く**（コミット・push・PR作成まで外部状態を変更するため、モデルの自動判断では起動させない）。
+
+このスキルはプロジェクトスコープのため、本リポジトリ内で作業しているときのみ起動する。他リポジトリで得た実践知を書き戻す場合は、出所（リポジトリ・コミットSHA等）を入力として渡すこと。出所は文書本文の `## 由来` 節へ記録される。
