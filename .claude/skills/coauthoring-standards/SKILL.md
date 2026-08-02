@@ -2,7 +2,7 @@
 name: coauthoring-standards
 description: 実践知を開発標準ナレッジ（sample-knowledge）へ書き起こす／既存文書を更新し、PRまで作成する。「実践知を書き戻す」「ナレッジに追加」「標準を追加・更新したい」と言われたとき、または concept-001 の循環ステップ5を実行するときに使う。
 disable-model-invocation: true
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(uv run *), Bash(grep *), Bash(git status *), Bash(git checkout -b *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git rev-parse *), Bash(gh pr create *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(uv run ruff check *), Bash(uv run mypy *), Bash(uv run pytest *), Bash(uv run pip-audit *), Bash(grep *), Bash(git status *), Bash(git branch *), Bash(git diff *), Bash(git rev-parse *), Bash(git checkout main), Bash(git checkout -b *), Bash(git pull --ff-only), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(gh pr create *)
 ---
 
 # 開発標準ナレッジの共同執筆
@@ -18,6 +18,32 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(uv run *), Bash(grep *), Bash
 書き戻すかどうかの最終判断は人間が行う。エージェントが勝手に標準を制定しない。
 
 ## 手順
+
+### 0. 作業ブランチを用意する（何かを編集する前に必ず行う）
+
+**編集を始めてからブランチを切らない。** 起動時点のブランチが `main` でなかった場合、そのブランチの未マージコミットを丸ごと含んだPRになる。
+
+まず現在の状態を確認する。
+
+```bash
+git branch --show-current
+git status --short
+```
+
+判断せずユーザーへ確認するのは次の2つ。**勝手に stash / commit / 破棄しない。**
+
+| 状況 | 対応 |
+|------|------|
+| 未コミットの変更がある | 変更内容を提示し、どう扱うか確認する。このスキルの成果物へ混ぜてよいものかは人間しか判断できない |
+| 現在のブランチが `main` でない | 既存ブランチの続きとして書くのか、`main` から新しく切るのか確認する |
+
+確認がとれたら `main` を基点に作業ブランチを作る。
+
+```bash
+git checkout main
+git pull --ff-only
+git checkout -b docs/<内容を表すスラッグ>
+```
 
 ### 1. 入力を確認する
 
@@ -36,6 +62,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(uv run *), Bash(grep *), Bash
 ### 2. 既存文書を検索して重複を避ける
 
 新規作成の前に、必ず既存文書を検索する。
+
+以下の `uv run python -c` は任意コードの実行にあたるため、`allowed-tools` で事前承認していない。実行のたびにユーザーの承認を求めること（承認を避けるためにスニペットを書き換えない）。
 
 ```bash
 uv run python -c "
@@ -194,12 +222,17 @@ print(asyncio.run(run())[:400])
 
 外部スキルへ依存せず、本手順だけで完結させる（`github-flow` は本リポジトリに同梱されていないため、cloneしただけの環境では実行できない）。
 
-`main` へ直接コミットしない。ブランチを切る。
+ブランチは手順0で作成済み。**`git add -A` を使わない。** 起動前から存在する無関係な変更まで巻き込むため、書いたファイルを明示的に指定する。
 
 ```bash
-git checkout -b docs/<内容を表すスラッグ>
-git add -A
-git status --short                          # 意図しないファイルが混ざっていないか目視する
+git add sample-knowledge/ docs/CONTEXT.md   # 実際に書いたパスだけを列挙する
+git status --short                          # ステージ漏れ・混入がないか
+git diff --cached                           # コミットする差分そのものを読む
+```
+
+差分を確認してからコミットする。
+
+```bash
 git commit -m "<件名>" -m "<本文>"           # 本文にはなぜ書き戻すのかを残す
 git push -u origin HEAD
 git rev-parse HEAD                          # evidence へ書くコミットSHA
@@ -238,4 +271,7 @@ PR本文には `concept-001` の evidence フォーマットを記載する。
 - `type` と一致しないIDを新たに採番する
 - DoD（ruff / mypy / pytest / pip-audit）を一部だけ実行してPRを作る
 - `main` へ直接コミットする
+- 編集を始めてからブランチを切る（手順0を飛ばす）
+- `git add -A` で一括ステージする
+- 起動前から存在するユーザーの未コミット変更を、確認せず stash / commit / 破棄する
 - 「実行できなかったこと」を書かずに完了報告する
